@@ -10,8 +10,7 @@ String header;
 
 float temperature[3] = {0,0,0};
 float humidity[3] = {0,0,0};
-float avgTemp = 0;
-float avgHum = 0;
+float lowTemp, avgTemp, highTemp, lowHum, avgHum, highHum;
 int fanState = 1;
 int freezing = 0;
 
@@ -31,6 +30,11 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
+
+  lowTemp = 0;
+  highTemp = 0;
+  lowHum = 0;
+  highHum = 0;
   
   server.begin();
   MOBO_DHT.begin();
@@ -50,7 +54,6 @@ void loop(){
   avgHum = 0;
 
   for(int i = 0; i < 3; i++) {
-    avgTemp = avgTemp + temperature[i];
     //if any temp sensor is freezing, we ignore the average
     if (temperature[i] <= 5) {
       avgTemp = 0;
@@ -63,13 +66,24 @@ void loop(){
 
   //need separate loop in case break is called
   for(int i = 0; i < 3; i++) {
+    avgTemp = avgTemp + temperature[i];
     avgHum = avgHum + humidity[i];
+    
+    if (temperature[i] < lowTemp)
+      lowTemp = temperature[i];
+    else if (temperature[i] > highTemp)
+      highTemp = temperature[i];
+      
+    if (humidity[i] < lowHum)
+      lowHum = humidity[i];
+    else if (humidity[i] > highHum)
+      highHum = humidity[i];
   }
 
   avgTemp = avgTemp / 3;
   avgHum = avgHum / 3;
 
-  if (avgTemp >= 10) {
+  if (avgTemp >= 10 && freezing = 0) {
     fanState = 1;
     digitalWrite(fanOutput, LOW);
   } else {
@@ -104,13 +118,18 @@ void loop(){
               
             client.println("<p>MOBO Temp. : " + String(temperature[0]) + " // GPU Temp. : " + String(temperature[1]) + " // PSU Temp. : " + String(temperature[2]) + "</p>");
             client.println("<p>MOBO Hum. : " + String(humidity[0]) + " // GPU Hum. : " + String(humidity[1]) + " // PSU Hum. : " + String(humidity[2]) + "</p>");
-            client.println("<p>Avg Temp. : " + String(avgTemp) + "</p>");
-            client.println("<p>Avg Hum. : " + String(avgHum) + "</p>");
+            client.println("<p>Low Temp. : " + String(lowTemp) + " // Avg Temp. : " + String(avgTemp) + " // High Temp. : " + String(highTemp) + "</p>");
+            client.println("<p>Low Hum. : " + String(lowHum) + " // Avg Hum. : " + String(avgHum) + " // High Hum. : " + String(highHum) + "</p>");
             
             if (fanState)
               client.println("<p>Fan State : On</p>");
             else
               client.println("<p>Fan State : Off</p>");
+
+            if (freezing)
+              client.println("<p>Freezing : YES</p>");
+            else
+              client.println("<p>Freezing : NO</p>");
             
             client.println("</body></html>");
             client.println();
