@@ -14,8 +14,8 @@ float lowTemp, avgTemp, highTemp, lowHum, avgHum, highHum;
 int fanState = 1;
 int freezing = 0;
 
-char* ssid = "stuff2";
-char* password = "yeanoperoo";
+char* ssid = "xxx";
+char* password = "xxx";
 
 WiFiServer server(80);
 DHT MOBO_DHT(MOBO_DHTPin, DHT11);
@@ -83,7 +83,7 @@ void loop(){
   avgTemp = avgTemp / 3;
   avgHum = avgHum / 3;
 
-  if (avgTemp >= 10 && freezing = 0) {
+  if (avgTemp >= 10 && freezing == 0) {
     fanState = 1;
     digitalWrite(fanOutput, LOW);
   } else {
@@ -107,9 +107,9 @@ void loop(){
             client.println();
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<link rel=\"icon\" href=\"data:,\">");
+            client.println("<link rel=\"icon\" href=\"https://www.nicepng.com/png/detail/441-4412701_transparent-twitch-emote-monkas-pepe-monkas.png\">");
             client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}</style></head>");
 
             if (freezing)
               client.println("<body style='background-color:red;'><h1>Mining Boy Climate Control</h1>");
